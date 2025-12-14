@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Physicists Battle — Choose Your Scientist</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Nunito:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --neon-green:#00ff85;
+      --neon-cyan:#00e0ff;
+      --panel-bg: rgba(0,0,0,0.999);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      background-image: url('assets/background2.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family:'Nunito', sans-serif;
+      color:#fff;
+      overflow:hidden;
+    }
+
+    .wrap{
+      width:min(1100px, 92vw);
+      background: var(--panel-bg);
+      border-radius:20px;
+      box-shadow:0 0 30px rgba(0,0,0,0.6);
+      padding:28px 26px 30px;
+      animation:float 6s ease-in-out infinite;
+    }
+
+    @keyframes float{
+      0%,100%{ transform:translateY(0) }
+      50%{ transform:translateY(-6px) }
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .title{
+      font-family:'Orbitron', sans-serif;
+      text-transform:uppercase;
+      letter-spacing:2px;
+      font-size:clamp(22px, 3.5vw, 36px);
+      line-height:1.1;
+    }
+    .title span{
+      color:var(--neon-green);
+      text-shadow:0 0 18px var(--neon-green), 0 0 40px var(--neon-green);
+    }
+
+    .sub{
+      color:#bcd6ff;
+      margin:2px 0 10px;
+      font-weight:700;
+      text-shadow:0 0 10px rgba(0,255,255,0.5);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(180px,1fr));
+      gap:22px;
+    }
+
+    .card{
+      position:relative;
+      background: rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:16px;
+      padding:16px 12px;
+      text-align:center;
+      transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      cursor:pointer;
+      user-select:none;
+    }
+    .card:hover{
+      transform:translateY(-4px);
+      box-shadow:0 0 22px rgba(0,224,255,0.25);
+      border-color: rgba(0,224,255,0.35);
+    }
+
+    .portrait{
+      width:110px; height:110px;
+      margin:0 auto 12px;
+      border-radius:50%;
+      background: radial-gradient(circle at 35% 30%, #1a263a, #0e1422 60%, #0a0f1a 100%);
+      border:2px solid rgba(255,255,255,0.15);
+      overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+    }
+
+    .portrait img{
+      width:100%; height:100%; object-fit:cover; display:block;
+    }
+
+    .name{
+      font-family:'Orbitron', sans-serif;
+      font-size:18px;
+      margin-bottom:6px;
+      letter-spacing:1px;
+    }
+
+    .tags{
+      font-size:12px;
+      color:#9fc8ff;
+      opacity:.9;
+    }
+
+    .card.active{
+      border-color: var(--neon-green);
+      box-shadow: 0 0 25px rgba(0,255,133,0.45);
+    }
+
+    .card.locked{
+      cursor:not-allowed;
+      filter: grayscale(100%);
+      opacity:.5;
+      pointer-events:none;
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    .lock-badge{
+      position:absolute;
+      top:10px; right:10px;
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:10px;
+      background: rgba(255,255,255,0.1);
+      border:1px solid rgba(255,255,255,0.2);
+      color:#c6d6ff;
+    }
+
+    .actions{
+      display:flex;
+      gap:12px;
+      margin-top:28px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+      color:#000;
+      border:none;
+      padding:14px 28px;
+      border-radius:12px;
+      font-weight:800;
+      font-size:16px;
+      letter-spacing:1px;
+      cursor:pointer;
+      text-transform:uppercase;
+      box-shadow:0 0 25px rgba(0,255,180,0.5);
+      transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+    }
+
+    .btn:hover{ transform:scale(1.04); box-shadow:0 0 40px rgba(0,255,200,0.9); }
+    .btn.secondary{
+      background:transparent;
+      color:#cfe4ff;
+      border:1px solid rgba(255,255,255,0.2);
+      box-shadow:none;
+      text-transform:none;
+      font-weight:700;
+    }
+
+    footer{
+      margin-top:12px;
+      font-size:12px;
+      color:#8aa0c9;
+      text-align:right;
+    }
+
+    /* ===========================
+       AI Tutor (chat widget)
+       =========================== */
+    #ai-launcher{
+      position: fixed; right: 18px; bottom: 18px; z-index: 9999;
+      border: none; border-radius: 999px; padding: 12px 16px;
+      background: linear-gradient(90deg,var(--neon-green),var(--neon-cyan));
+      color:#000; font-weight:800; box-shadow:0 10px 25px rgba(0,0,0,.35);
+      cursor: pointer; letter-spacing:.5px;
+    }
+    #ai-panel{
+      position: fixed; right: 18px; bottom: 72px; z-index: 9999;
+      width: min(360px, 94vw); max-height: 70vh;
+      background: rgba(0,0,0,.92); border:1px solid rgba(255,255,255,.15);
+      border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,.5);
+      display: grid; grid-template-rows: auto 1fr auto; overflow: hidden;
+      backdrop-filter: blur(6px);
+    }
+    .ai-header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.12);
+      font-family:'Orbitron',sans-serif; letter-spacing:.8px;
+    }
+    #ai-close{
+      border:none; background:transparent; color:#cfe4ff; cursor:pointer; font-size:16px;
+    }
+    #ai-messages{
+      padding:12px; overflow:auto; display:flex; flex-direction:column; gap:8px;
+    }
+    .ai-msg{ padding:10px 12px; border-radius:12px; line-height:1.4; font-size:14px; }
+    .ai-user{ align-self:flex-end; background:rgba(0,224,255,.12); border:1px solid rgba(0,224,255,.25); }
+    .ai-bot{  align-self:flex-start; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); }
+    #ai-form{ display:flex; gap:8px; padding:10px; border-top:1px solid rgba(255,255,255,.12); }
+    #ai-input{
+      flex:1; border-radius:10px; border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.05); color:#fff; padding:10px 12px;
+    }
+    #ai-form button{
+      border:none; border-radius:10px; padding:10px 14px; cursor:pointer;
+      background:linear-gradient(90deg,var(--neon-green),var(--neon-cyan)); color:#000; font-weight:800;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="title">Choose Your <span>Scientist</span></div>
+        <div class="sub">Only <strong>Newton</strong> is available right now — others are locked.</div>
+      </div>
+      <button class="btn secondary" id="backBtn">← Back</button>
+    </header>
+
+    <!-- Scientists grid -->
+    <section class="grid" id="grid">
+      <!-- Isaac Newton (unlocked, clickable link) -->
+      <article
+        class="card active"
+        data-id="newton"
+        onclick="window.open('https://www.britannica.com/biography/Isaac-Newton', '_blank');"
+        style="cursor:pointer;"
+      >
+        <div class="portrait">
+          <img src="assets/newton.png" alt="Isaac Newton">
+        </div>
+        <div class="name">Isaac Newton</div>
+        <div class="tags">Classical Mechanics • Gravity</div>
+      </article>
+
+      <!-- Albert Einstein -->
+      <article class="card locked" data-id="einstein">
+        <div class="lock-badge">Locked</div>
+        <div class="portrait"><img src="assets/enistein.png" alt="Albert Einstein"></div>
+        <div class="name">Albert Einstein</div>
+        <div class="tags">Relativity • Quantum Physics</div>
+      </article>
+
+      <!-- Marie Curie -->
+      <article class="card locked" data-id="curie">
+        <div class="lock-badge">Locked</div>
+        <div class="portrait"><img src="assets/marie.png" alt="Marie Curie"></div>
+        <div class="name">Marie Curie</div>
+        <div class="tags">Radioactivity • Chemistry</div>
+      </article>
+
+      <!-- Nikola Tesla -->
+      <article class="card locked" data-id="tesla">
+        <div class="lock-badge">Locked</div>
+        <div class="portrait"><img src="assets/tesla.png" alt="Nikola Tesla"></div>
+        <div class="name">Nikola Tesla</div>
+        <div class="tags">Electromagnetism • Inventions</div>
+      </article>
+
+      <!-- Galileo Galilei -->
+      <article class="card locked" data-id="galileo">
+        <div class="lock-badge">Locked</div>
+        <div class="portrait"><img src="assets/galileo.png" alt="Galileo Galilei"></div>
+        <div class="name">Galileo Galilei</div>
+        <div class="tags">Astronomy • Motion</div>
+      </article>
+
+      <!-- Katherine Johnson -->
+      <article class="card locked" data-id="johnson">
+        <div class="lock-badge">Locked</div>
+        <div class="portrait"><img src="assets/katherine.png" alt="Katherine Johnson"></div>
+        <div class="name">Katherine Johnson</div>
+        <div class="tags">Orbital Mechanics • NASA</div>
+      </article>
+    </section>
+
+    <div class="actions">
+      <button class="btn" id="startBtn">Start with Newton</button>
+    </div>
+
+    <footer>
+      Characters will unlock as you progress through levels.
+    </footer>
+  </div>
+
+  <!-- ============== AI Tutor markup ============== -->
+  <button id="ai-launcher" aria-label="Open AI Tutor">💬 Help</button>
+
+  <div id="ai-panel" hidden>
+    <div class="ai-header">
+      <strong>AI Tutor</strong>
+      <button id="ai-close" aria-label="Close">✕</button>
+    </div>
+    <div id="ai-messages" aria-live="polite"></div>
+    <form id="ai-form">
+      <input
+        id="ai-input"
+        type="text"
+        placeholder="Ask about Newton’s laws, levels, formulas…"
+        autocomplete="off"
+        required
+      />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+  <!-- ============================================= -->
+
+  <script>
+    const unlocked = new Set(['newton']);
+    let selected = 'newton';
+
+    const startBtn = document.getElementById('startBtn');
+    const backBtn = document.getElementById('backBtn');
+
+    startBtn.addEventListener('click', () => {
+      window.location.href = 'level1.html';
+    });
+
+    backBtn.addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+  </script>
+
+  <!-- ============== AI Tutor client script ============== -->
+  <script>
+  (() => {
+    const launcher = document.getElementById('ai-launcher');
+    const panel    = document.getElementById('ai-panel');
+    const closeBtn = document.getElementById('ai-close');
+    const form     = document.getElementById('ai-form');
+    const input    = document.getElementById('ai-input');
+    const box      = document.getElementById('ai-messages');
+
+    const STORAGE_KEY = 'aiTutorHistory';
+    let history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); }
+    function scrollDown(){ box.scrollTop = box.scrollHeight; }
+
+    function render(){
+      box.innerHTML = '';
+      history.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'ai-msg ' + (m.role === 'user' ? 'ai-user' : 'ai-bot');
+        div.textContent = m.content;
+        box.appendChild(div);
+      });
+      scrollDown();
+    }
+
+    launcher.onclick = () => { panel.hidden = false; render(); input.focus(); };
+    closeBtn.onclick = () => { panel.hidden = true; };
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      history.push({ role:'user', content:text });
+      history.push({ role:'assistant', content:"(AI replies would appear here once backend is connected.)" });
+      save(); render();
+    };
+
+    if (history.length === 0){
+      history = [{ role:'assistant', content:'Hi! Need help with Newton, formulas, or how to play? Ask me anything.' }];
+      save();
+    }
+    render();
+  })();
+  </script>
+</body>
+</html>

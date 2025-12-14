@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Physicists Battle — Newton Level 3 (Ball Toss)</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Nunito:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{ --neon-green:#00ff85; --neon-cyan:#00e0ff; --panel-bg: rgba(0,0,0,0.9); }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; min-height:100vh;
+      background: radial-gradient(circle at center, #060b1a 0%, #010409 100%);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Nunito', sans-serif; color:#fff; overflow:hidden;
+    }
+    .wrap{
+      width:min(1100px,94vw); background:var(--panel-bg);
+      border-radius:20px; box-shadow:0 0 30px rgba(0,0,0,.6);
+      padding:24px 24px 28px; animation:float 6s ease-in-out infinite;
+    }
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    header{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:14px;}
+    .title{font-family:'Orbitron', sans-serif; text-transform:uppercase; letter-spacing:2px; font-size:clamp(20px,3.2vw,34px);}
+    .title span{color:var(--neon-green); text-shadow:0 0 16px var(--neon-green);}
+    .btn{
+      background:linear-gradient(90deg,var(--neon-green),var(--neon-cyan));
+      color:#000; border:none; padding:12px 22px; border-radius:12px;
+      font-weight:800; font-size:16px; letter-spacing:1px; cursor:pointer;
+      text-transform:uppercase; box-shadow:0 0 25px rgba(0,255,180,.5);
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .btn:hover{ transform:scale(1.04); box-shadow:0 0 40px rgba(0,255,200,.9); }
+    .btn.secondary{ background:transparent; color:#cfe4ff; border:1px solid rgba(255,255,255,.2); box-shadow:none; text-transform:none; }
+
+    .panel{ background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+      border-radius:16px; padding:16px; margin-bottom:12px; }
+    .panel h3{ margin:0 0 10px; font-family:'Orbitron', sans-serif; letter-spacing:1px; }
+    .explain{ color:#cfe4ff; line-height:1.6; }
+    .explain ul{ margin:10px 0 0 18px; }
+
+    .formula-block{ display:flex; align-items:center; justify-content:center; margin:14px 0 8px; }
+    .formula{
+      font-family:'Orbitron', sans-serif; color:var(--neon-cyan);
+      text-shadow:0 0 12px var(--neon-cyan), 0 0 22px rgba(0,224,255,.45);
+      font-size:clamp(20px,3.2vw,32px); letter-spacing:1px; padding:8px 14px; border-radius:12px;
+      background:rgba(0,224,255,0.06); border:1px solid rgba(0,224,255,0.25);
+    }
+    .hint{ color:#9fc8ff; text-shadow:0 0 8px rgba(0,255,255,.25); margin-top:8px; }
+    .row{ display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+
+    .controls{
+      display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+      border-radius:12px; padding:12px;
+    }
+    .control{ display:flex; align-items:center; gap:10px; }
+    .control label{ color:#cfe4ff; font-weight:700; }
+    .control input[type="range"]{ width:180px; }
+    .badge{ padding:6px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.04); }
+    .badge strong{ color:#fff; }
+
+    canvas{ width:100%; height:340px; background:#0b0f1a; border-radius:12px; display:block; }
+    footer{ margin-top:10px; color:#8aa0c9; font-size:12px; text-align:right; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">Newton — <span>Third Law</span> (Ball Toss)</div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn secondary" id="backBtn">← Back to Second Law</button>
+        <button class="btn" id="homeBtn">Home</button>
+      </div>
+    </header>
+
+    <!-- LEARN -->
+    <section class="panel" id="panelLearn" style="display:block;">
+      <h3>Third Law — Equal & Opposite Forces</h3>
+      <div class="explain">
+        Toxunuş (və ya itələmə) anında iki cisim bir-birinə <strong>bərabər</strong> böyüklükdə, <strong>əks</strong> istiqamətdə qüvvə tətbiq edir:
+        <strong>F<sub>AB</sub> = −F<sub>BA</sub></strong>. Kütlələr fərqlidirsə, <strong>a = F/m</strong> olduğuna görə sürətlər fərqli alınır.
+        <ul>
+          <li>Eyni impuls J = F·Δt → <em>v₁ = +J/m₁</em>, <em>v₂ = −J/m₂</em>.</li>
+          <li>Sonra hər biri demək olar ki, sürtünməsiz sabit sürətlə hərəkət edir.</li>
+          <li>Toplar yenidən toqquşsa, <em>elastik toqquşma</em> qaydaları ilə sürətlər dəyişir.</li>
+        </ul>
+      </div>
+      <div class="formula-block"><div class="formula">F<sub>AB</sub> = − F<sub>BA</sub></div></div>
+      <p class="hint">Oyunda “Toss Each Other” bas: mərkəzdə eyni impuls verilir → toplar əks istiqamətlərə gedir.</p>
+      <div class="row" style="margin-top:10px;"><div></div><button class="btn" id="toPlayBtn">Got it — Let’s Play</button></div>
+    </section>
+
+    <!-- PLAY -->
+    <section class="panel" id="panelPlay" style="display:none;">
+      <div class="controls">
+        <div class="control">
+          <label>m₁ (Left):</label>
+          <input id="m1Range" type="range" min="1" max="10" step="1" value="3"/>
+          <span class="badge">m₁ = <strong id="m1Val">3</strong> kg</span>
+        </div>
+        <div class="control">
+          <label>m₂ (Right):</label>
+          <input id="m2Range" type="range" min="1" max="10" step="1" value="6"/>
+          <span class="badge">m₂ = <strong id="m2Val">6</strong> kg</span>
+        </div>
+        <div class="control">
+          <label>Toss Power (|F|):</label>
+          <input id="forceRange" type="range" min="6" max="45" step="1" value="16"/>
+          <span class="badge">|F| = <strong id="forceVal">16</strong> N</span>
+        </div>
+        <div class="badge">Impulse J = F·Δt → v₁=+J/m₁, v₂=−J/m₂</div>
+        <button class="btn" id="tossBtn">Toss Each Other</button>
+        <button class="btn secondary" id="resetBtn">Reset</button>
+      </div>
+
+      <div class="row" style="margin:8px 0;">
+        <div class="hint">Məqsəd: sol top <strong>sol yaşıl zonaya</strong>, sağ top <strong>sağ yaşıl zonaya</strong> çatsın. Yenidən toqquşsalar, elastik toqquşma tətbiq olunur.</div>
+        <div class="badge">v₁ = <strong id="v1Val">0.00</strong> m/s • v₂ = <strong id="v2Val">0.00</strong> m/s</div>
+      </div>
+
+      <canvas id="world" width="980" height="340"></canvas>
+
+      <div class="row" style="margin-top:8px;">
+        <button class="btn secondary" id="prevBtn">← Back to Second Law</button>
+        <button class="btn" id="finishBtn" disabled>Finish Third Law</button>
+      </div>
+    </section>
+
+    <!-- COMPLETE -->
+    <section class="panel" id="panelComplete" style="display:none;">
+      <h3>Great! Third Law Completed ✅</h3>
+      
+      <div class="row">
+        <button class="btn secondary" id="replayBtn">Replay</button>
+        <button class="btn" id="homeBtn2">Back to Home</button>
+      </div>
+    </section>
+
+    <footer>Progress is saved locally on your device.</footer>
+  </div>
+
+  <script>
+    // Panels / nav
+    const panelLearn = document.getElementById('panelLearn');
+    const panelPlay  = document.getElementById('panelPlay');
+    const panelComplete = document.getElementById('panelComplete');
+    const show = w=>{
+      panelLearn.style.display = (w==='learn')?'block':'none';
+      panelPlay.style.display  = (w==='play') ?'block':'none';
+      panelComplete.style.display = (w==='complete')?'block':'none';
+    };
+    document.getElementById('backBtn').onclick = ()=> location.href='level2.html';
+    document.getElementById('homeBtn').onclick = ()=> location.href='index.html';
+    document.getElementById('homeBtn2').onclick = ()=> location.href='index.html';
+    document.getElementById('prevBtn').onclick = ()=> location.href='level2.html';
+    document.getElementById('toPlayBtn').onclick = ()=> { show('play'); resetSim(true); };
+    document.getElementById('replayBtn').onclick = ()=> { show('play'); resetSim(true); };
+    show('learn');
+
+    // DOM refs
+    const m1Range=document.getElementById('m1Range');
+    const m2Range=document.getElementById('m2Range');
+    const forceRange=document.getElementById('forceRange');
+    const m1Val=document.getElementById('m1Val');
+    const m2Val=document.getElementById('m2Val');
+    const forceVal=document.getElementById('forceVal');
+    const v1Val=document.getElementById('v1Val');
+    const v2Val=document.getElementById('v2Val');
+    const tossBtn=document.getElementById('tossBtn');
+    const resetBtn=document.getElementById('resetBtn');
+    const finishBtn=document.getElementById('finishBtn');
+
+    // Canvas
+    const canvas=document.getElementById('world');
+    const ctx=canvas.getContext('2d');
+
+    const bounds={left:40,right:canvas.width-40,top:40,bottom:canvas.height-40};
+    const laneY = canvas.height*0.6;
+
+    // Goals
+    const goalL = { x: bounds.left + 10, y: laneY - 35, w: 110, h: 70 };
+    const goalR = { x: bounds.right - 120, y: laneY - 35, w: 110, h: 70 };
+
+    // Physics mapping
+    const metersPerPixel = 1/25;    // 25 px ≈ 1 m (display)
+    const dt = 1/60;                // base frame step (s)
+    const microFriction = 0.00012;  // almost zero
+    const IMPULSE_SECONDS = 0.6;    // toss duration
+
+    // Balls
+    const L = { x: canvas.width/2 - 18, y: laneY, r: 16, m: 3, vx: 0 }; // left ball
+    const R = { x: canvas.width/2 + 18, y: laneY, r: 16, m: 6, vx: 0 }; // right ball
+
+    // State
+    let applying = 0; // frames of ±F left
+    let Fmag = 16;    // N
+    let running = false;
+    let doneL=false, doneR=false;
+
+    // UI wiring
+    function recalc(){
+      L.m = parseInt(m1Range.value,10);
+      R.m = parseInt(m2Range.value,10);
+      Fmag = parseInt(forceRange.value,10);
+      m1Val.textContent = L.m.toString();
+      m2Val.textContent = R.m.toString();
+      forceVal.textContent = Fmag.toString();
+
+      const J = Fmag * IMPULSE_SECONDS; // N·s
+      v1Val.textContent = ( J / L.m).toFixed(2);
+      v2Val.textContent = (-J / R.m).toFixed(2);
+    }
+    m1Range.addEventListener('input', recalc);
+    m2Range.addEventListener('input', recalc);
+    forceRange.addEventListener('input', recalc);
+    recalc();
+
+    // Draw helpers
+    function drawBG(){
+      ctx.fillStyle='#0b0f1a'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.strokeStyle='rgba(0,224,255,.25)'; ctx.lineWidth=2;
+      ctx.strokeRect(bounds.left,bounds.top,bounds.right-bounds.left,bounds.bottom-bounds.top);
+      ctx.strokeStyle='rgba(180,200,255,.25)';
+      ctx.beginPath(); ctx.moveTo(bounds.left,laneY); ctx.lineTo(bounds.right,laneY); ctx.stroke();
+
+      ctx.fillStyle='rgba(0,255,133,.18)';
+      ctx.fillRect(goalL.x,goalL.y,goalL.w,goalL.h);
+      ctx.fillRect(goalR.x,goalR.y,goalR.w,goalR.h);
+      ctx.strokeStyle='#00ff85'; ctx.lineWidth=2;
+      ctx.strokeRect(goalL.x,goalL.y,goalL.w,goalL.h);
+      ctx.strokeRect(goalR.x,goalR.y,goalR.w,goalR.h);
+      ctx.font='12px Nunito'; ctx.fillStyle='#9fffcf';
+      ctx.fillText('GOAL (Left)', goalL.x+22, goalL.y-6);
+      ctx.fillText('GOAL (Right)', goalR.x+18, goalR.y-6);
+    }
+
+    function drawBall(obj, stroke='#00e0ff', tint='#a6c9ff'){
+      const g = ctx.createRadialGradient(obj.x-6, obj.y-6, 2, obj.x, obj.y, obj.r+3);
+      g.addColorStop(0,'#ffffff'); g.addColorStop(1,tint);
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(obj.x,obj.y,obj.r,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle=stroke; ctx.lineWidth=2; ctx.stroke();
+    }
+
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawBG();
+      drawBall(L, '#00e0ff', '#a6c9ff');
+      drawBall(R, '#ffcc66', '#ffd59a');
+
+      // force arrows during toss
+      if (applying>0){
+        drawArrow(L.x+L.r+4, L.y, L.x+L.r+4+60, L.y, '#ffc960'); // +F right on L
+        drawArrow(R.x-R.r-4, R.y, R.x-R.r-4-60, R.y, '#ffc960'); // −F left on R
+        ctx.font='bold 12px Nunito'; ctx.fillStyle='#ffc960';
+        ctx.fillText(`+F = ${Fmag} N`, L.x+L.r+8, L.y-12);
+        ctx.fillText(`−F = ${Fmag} N`, R.x-R.r-72, R.y-12);
+      }
+    }
+
+    function drawArrow(x1,y1,x2,y2,color='#ffc960'){
+      const dx=x2-x1, dy=y2-y1, ang=Math.atan2(dy,dx), len=Math.hypot(dx,dy);
+      const head=Math.min(18, Math.max(10, len*0.12));
+      ctx.strokeStyle=color; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x2,y2);
+      ctx.lineTo(x2-head*Math.cos(ang-Math.PI/7), y2-head*Math.sin(ang-Math.PI/7));
+      ctx.lineTo(x2-head*Math.cos(ang+Math.PI/7), y2-head*Math.sin(ang+Math.PI/7));
+      ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+    }
+
+    // Physics
+    function step(){
+      // Apply equal & opposite forces while “tossing”
+      if (applying>0){
+        const aL =  (Fmag / L.m); // m/s^2
+        const aR = -(Fmag / R.m);
+        // Map m/s^2 → px/frame^2 approximately
+        const dvL = (aL / metersPerPixel) * dt * dt;
+        const dvR = (aR / metersPerPixel) * dt * dt;
+        L.vx += dvL;
+        R.vx += dvR;
+        applying--;
+      }
+
+      // Update positions
+      L.x += L.vx;
+      R.x += R.vx;
+
+      // Tiny friction to stabilize
+      function damp(v){
+        const s = Math.abs(v); if (s===0) return 0;
+        const r = Math.max(0, s - microFriction);
+        return Math.sign(v)*r;
+      }
+      L.vx = damp(L.vx);
+      R.vx = damp(R.vx);
+
+      // Elastic collision between balls (1D along x)
+      const dist = Math.abs(R.x - L.x);
+      const minDist = L.r + R.r;
+      if (dist < minDist){
+        // Resolve overlap
+        const overlap = minDist - dist;
+        const shift = overlap/2;
+        L.x -= shift; R.x += shift;
+
+        // 1D elastic collision formulas
+        const m1=L.m, m2=R.m, u1=L.vx, u2=R.vx;
+        const v1 = ((m1-m2)/(m1+m2))*u1 + ((2*m2)/(m1+m2))*u2;
+        const v2 = ((2*m1)/(m1+m2))*u1 + ((m2-m1)/(m1+m2))*u2;
+        L.vx = v1; R.vx = v2;
+      }
+
+      // Walls
+      if (L.x - L.r < bounds.left){ L.x = bounds.left + L.r; L.vx = Math.abs(L.vx); }
+      if (R.x + R.r > bounds.right){ R.x = bounds.right - R.r; R.vx = -Math.abs(R.vx); }
+      if (R.x - R.r < bounds.left){ R.x = bounds.left + R.r; R.vx = Math.abs(R.vx); }
+      if (L.x + L.r > bounds.right){ L.x = bounds.right - L.r; L.vx = -Math.abs(L.vx); }
+
+      // Goals
+      if (!doneL && L.x - L.r <= goalL.x + goalL.w) doneL = true;
+      if (!doneR && R.x + R.r >= goalR.x)        doneR = true;
+
+      if (doneL && doneR){
+        running=false; finishBtn.disabled=false; show('complete');
+      }
+    }
+
+    function loop(){
+      if (running) step();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    function resetSim(full=false){
+      // set them touching in the center
+      L.x = canvas.width/2 - 18; R.x = canvas.width/2 + 18;
+      L.vx = 0; R.vx = 0;
+      applying = 0; running=false; doneL=false; doneR=false;
+      finishBtn.disabled = true;
+      v1Val.textContent='0.00'; v2Val.textContent='0.00';
+      recalc(); draw();
+    }
+
+    tossBtn.addEventListener('click', ()=>{
+      // give equal & opposite impulse (toss)
+      applying = Math.round(IMPULSE_SECONDS / dt);
+      running = true;
+      // show predicted velocities now
+      const J = Fmag * IMPULSE_SECONDS;
+      v1Val.textContent = ( J / L.m).toFixed(2);
+      v2Val.textContent = (-J / R.m).toFixed(2);
+    });
+
+    resetBtn.addEventListener('click', ()=> resetSim(true));
+    finishBtn.addEventListener('click', ()=> show('complete'));
+
+    // start
+    resetSim();
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

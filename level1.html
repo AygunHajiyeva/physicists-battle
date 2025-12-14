@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Physicists Battle — Newton Level 1 (First Law)</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Nunito:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{ --neon-green:#00ff85; --neon-cyan:#00e0ff; --panel-bg: rgba(0,0,0,0.9); }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; min-height:100vh;
+      background: radial-gradient(circle at center, #060b1a 0%, #010409 100%);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Nunito', sans-serif; color:#fff; overflow:hidden;
+    }
+    .wrap{
+      width:min(1100px,94vw); background:var(--panel-bg);
+      border-radius:20px; box-shadow:0 0 30px rgba(0,0,0,.6);
+      padding:24px 24px 28px; animation:float 6s ease-in-out infinite;
+    }
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    header{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:14px;}
+    .title{font-family:'Orbitron',sans-serif; text-transform:uppercase; letter-spacing:2px; font-size:clamp(20px,3.2vw,34px);}
+    .title span{color:var(--neon-green); text-shadow:0 0 16px var(--neon-green);}
+    .btn{
+      background:linear-gradient(90deg,var(--neon-green),var(--neon-cyan));
+      color:#000; border:none; padding:12px 22px; border-radius:12px;
+      font-weight:800; font-size:16px; letter-spacing:1px; cursor:pointer; text-transform:uppercase;
+      box-shadow:0 0 25px rgba(0,255,180,.5); transition:transform .2s, box-shadow .2s;
+    }
+    .btn:hover{transform:scale(1.04); box-shadow:0 0 40px rgba(0,255,200,.9);}
+    .btn.secondary{background:transparent; color:#cfe4ff; border:1px solid rgba(255,255,255,.2); box-shadow:none; text-transform:none;}
+    .panel{background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:16px; margin-bottom:12px;}
+    .panel h3{margin:0 0 10px; font-family:'Orbitron',sans-serif; letter-spacing:1px;}
+    .explain{color:#cfe4ff; line-height:1.6;}
+    .explain ul{margin:10px 0 0 18px;}
+    .formula-block{display:flex; align-items:center; justify-content:center; margin:14px 0 8px;}
+    .formula{
+      font-family:'Orbitron',sans-serif; color:var(--neon-cyan);
+      text-shadow:0 0 12px var(--neon-cyan),0 0 22px rgba(0,224,255,.45);
+      font-size:clamp(20px,3.2vw,32px); letter-spacing:1px; padding:8px 14px; border-radius:12px;
+      background:rgba(0,224,255,0.06); border:1px solid rgba(0,224,255,0.25);
+    }
+    .hint{color:#9fc8ff; text-shadow:0 0 8px rgba(0,255,255,.25); margin-top:8px;}
+    .row{display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap;}
+    canvas{width:100%; height:360px; background:#050915; border-radius:12px; display:block;}
+    .status{font-weight:800; letter-spacing:.5px;}
+    footer{margin-top:10px; color:#8aa0c9; font-size:12px; text-align:right;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">Newton — <span>First Law</span> (Inertia)</div>
+      <button class="btn secondary" id="backBtn">← Back</button>
+    </header>
+
+    <!-- LEARN -->
+    <section class="panel" id="panelLearn" style="display:block;">
+      <h3>First Law — Inertia</h3>
+      <div class="explain">
+        In space there’s almost no friction. Newton’s <strong>First Law</strong> says: with <strong>no net force</strong>,
+        an object keeps its state of motion — <em>rest or straight-line constant speed</em>.
+        <ul>
+          <li><strong>No force</strong> ⇒ <strong>no change</strong> in speed or direction.</li>
+          <li>One push is enough — after that, velocity stays constant.</li>
+        </ul>
+      </div>
+      <div class="formula-block"><div class="formula">ΣF = 0  ⇒  v = constant</div></div>
+      <p class="hint">Game: drag from the probe to set direction/power → release once. Reach the green gate.</p>
+      <div class="row" style="margin-top:10px;">
+        <div></div><button class="btn" id="toPlayBtn">Got it — Let’s Play</button>
+      </div>
+    </section>
+
+    <!-- PLAY -->
+    <section class="panel" id="panelPlay" style="display:none;">
+      <div class="row" style="margin-bottom:8px;">
+        <div class="hint">Drag from the probe (circle) to aim. Release to launch. One push only. Reach the green gate.</div>
+        <div class="status" id="status">Push used: No</div>
+      </div>
+      <canvas id="world" width="980" height="360"></canvas>
+      <div class="row" style="margin-top:8px;">
+        <div><button class="btn secondary" id="resetBtn">Reset</button></div>
+        <button class="btn" id="finishBtn">Next: Second Law</button>
+      </div>
+    </section>
+
+    <!-- COMPLETE (kept for consistency, but we auto-advance anyway) -->
+    <section class="panel" id="panelComplete" style="display:none;">
+      <h3>Great! First Law Completed ✅</h3>
+      <p>Single push → constant velocity drift → goal reached. That’s inertia.</p>
+      <div class="row">
+        <button class="btn secondary" id="replayBtn">Replay Mini-game</button>
+        <button class="btn" id="nextLawBtn">Next: Second Law</button>
+      </div>
+    </section>
+
+    <footer>Progress is saved locally on your device.</footer>
+  </div>
+
+  <script>
+    // panels
+    const panelLearn = document.getElementById('panelLearn');
+    const panelPlay  = document.getElementById('panelPlay');
+    const panelComp  = document.getElementById('panelComplete');
+    const show = w => {
+      panelLearn.style.display = (w==='learn')?'block':'none';
+      panelPlay.style.display  = (w==='play') ?'block':'none';
+      panelComp.style.display  = (w==='complete')?'block':'none';
+    };
+
+    document.getElementById('backBtn').onclick  = () => location.href = 'game.html';
+    document.getElementById('toPlayBtn').onclick= () => { show('play'); resetRun(); };
+    document.getElementById('replayBtn')?.addEventListener('click', ()=>{ show('play'); resetRun(); });
+    document.getElementById('nextLawBtn')?.addEventListener('click', ()=> location.href='level2.html');
+
+    show('learn');
+
+    // canvas
+    const canvas = document.getElementById('world');
+    const ctx = canvas.getContext('2d');
+    const bounds = { left:40, right:canvas.width-40, top:40, bottom:canvas.height-40 };
+    const statusEl = document.getElementById('status');
+    const resetBtn = document.getElementById('resetBtn');
+    const finishBtn= document.getElementById('finishBtn');
+
+    // starfield
+    const stars = Array.from({length:60}, ()=>({
+      x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+      r: Math.random()*1.6+0.4, s: Math.random()*0.4+0.05
+    }));
+
+    // probe
+    const probe = { x: bounds.left + 80, y: canvas.height/2, r: 14, vx: 0, vy: 0 };
+
+    // goal
+    const goal = { x: canvas.width - 150, y: canvas.height/2 - 55, w: 100, h: 110 };
+
+    // state
+    let dragging=false, launched=false, won=false, dragNow=null;
+
+    // tuning (made a bit snappier + almost no friction)
+    const microFriction = 0.0002;  // smaller ⇒ longer constant drift
+    const LAUNCH_SCALE  = 0.095;   // bigger ⇒ faster start
+    const LAUNCH_MAXV   = 10;      // higher cap
+
+    // trail
+    const trail = [];
+    function addTrail(){
+      trail.push({ x:probe.x, y:probe.y, a:0.9, life:26, vx:(Math.random()-0.5)*0.6, vy:(Math.random()-0.5)*0.6 });
+    }
+
+    function drawBG(){
+      ctx.fillStyle = '#050915'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      stars.forEach(st=>{ st.x -= st.s*0.2; if (st.x<0) st.x=canvas.width;
+        ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, Math.PI*2);
+        ctx.fillStyle='rgba(190,210,255,0.85)'; ctx.fill();
+      });
+      ctx.strokeStyle='rgba(0,224,255,.25)'; ctx.lineWidth=2;
+      ctx.strokeRect(bounds.left,bounds.top,bounds.right-bounds.left,bounds.bottom-bounds.top);
+      ctx.fillStyle='rgba(0,255,133,.18)'; ctx.fillRect(goal.x,goal.y,goal.w,goal.h);
+      ctx.strokeStyle='#00ff85'; ctx.lineWidth=2; ctx.strokeRect(goal.x,goal.y,goal.w,goal.h);
+      ctx.font='12px Nunito'; ctx.fillStyle='#9fffcf'; ctx.fillText('GOAL', goal.x+32, goal.y-6);
+    }
+
+    function drawArrow(x1,y1,x2,y2,color='#ffc960'){
+      const dx=x2-x1, dy=y2-y1, ang=Math.atan2(dy,dx), len=Math.hypot(dx,dy);
+      const head=Math.min(18, Math.max(10, len*0.12));
+      ctx.strokeStyle=color; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x2,y2);
+      ctx.lineTo(x2-head*Math.cos(ang-Math.PI/7), y2-head*Math.sin(ang-MPI/7));
+    }
+
+    // fix typo above (MPI) by redefining:
+    function drawArrow(x1a,y1a,x2a,y2a,color2='#ffc960'){
+      const dx=x2a-x1a, dy=y2a-y1a, ang=Math.atan2(dy,dx), len=Math.hypot(dx,dy);
+      const head=Math.min(18, Math.max(10, len*0.12));
+      ctx.strokeStyle=color2; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(x1a,y1a); ctx.lineTo(x2a,y2a); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x2a,y2a);
+      ctx.lineTo(x2a-head*Math.cos(ang-Math.PI/7), y2a-head*Math.sin(ang-Math.PI/7));
+      ctx.lineTo(x2a-head*Math.cos(ang+Math.PI/7), y2a-head*Math.sin(ang+Math.PI/7));
+      ctx.closePath(); ctx.fillStyle=color2; ctx.fill();
+    }
+
+    function drawProbe(){
+      // trail particles
+      trail.forEach(p=>{
+        ctx.globalAlpha=p.a;
+        ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2);
+        ctx.fillStyle='#00e0ff'; ctx.fill(); ctx.globalAlpha=1;
+        p.x+=p.vx; p.y+=p.vy; p.life-=1; p.a*=0.94;
+      });
+      for(let i=trail.length-1;i>=0;i--) if(trail[i].life<=0) trail.splice(i,1);
+
+      // probe body
+      const grd = ctx.createRadialGradient(probe.x-6, probe.y-6, 2, probe.x, probe.y, probe.r+3);
+      grd.addColorStop(0,'#ffffff'); grd.addColorStop(1,'#a6c9ff');
+      ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(probe.x,probe.y,probe.r,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#00e0ff'; ctx.lineWidth=2; ctx.shadowColor='#00e0ff'; ctx.shadowBlur=14; ctx.stroke(); ctx.shadowBlur=0;
+
+      // velocity arrow
+      if (launched && (Math.abs(probe.vx)+Math.abs(probe.vy) > 0.01)){
+        drawArrow(probe.x, probe.y, probe.x + probe.vx*12, probe.y + probe.vy*12, '#1ee3a2');
+      }
+      // aim preview
+      if (!launched && dragging && dragNow){
+        drawArrow(probe.x, probe.y, dragNow.x, dragNow.y, '#ffc960');
+      }
+    }
+
+    function update(){
+      if (launched){
+        probe.x += probe.vx; probe.y += probe.vy;
+        const speed=Math.hypot(probe.vx, probe.vy);
+        if (speed>0){
+          const reduce=Math.min(microFriction, speed);
+          probe.vx -= (probe.vx/speed)*reduce;
+          probe.vy -= (probe.vy/speed)*reduce;
+        }
+        // walls bounce
+        if (probe.x - probe.r < bounds.left){ probe.x = bounds.left + probe.r; probe.vx = Math.abs(probe.vx); }
+        if (probe.x + probe.r > bounds.right){ probe.x = bounds.right - probe.r; probe.vx = -Math.abs(probe.vx); }
+        if (probe.y - probe.r < bounds.top){ probe.y = bounds.top + probe.r; probe.vy = Math.abs(probe.vy); }
+        if (probe.y + probe.r > bounds.bottom){ probe.y = bounds.bottom - probe.r; probe.vy = -Math.abs(probe.vy); }
+        if (speed>0.05) addTrail();
+
+        // win
+        if (!won && probe.x > goal.x && probe.x < goal.x+goal.w && probe.y > goal.y && probe.y < goal.y+goal.h){
+          won=true; launched=false;
+          // auto-advance to Level 2
+          location.href = 'level2.html';
+        }
+      }
+    }
+
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawBG();
+      drawProbe();
+    }
+
+    function loop(){ update(); draw(); requestAnimationFrame(loop); }
+
+    // input
+    function getMouse(e){
+      const r=canvas.getBoundingClientRect();
+      return { x:(e.clientX-r.left)*(canvas.width/r.width), y:(e.clientY-r.top)*(canvas.height/r.height) };
+    }
+    canvas.addEventListener('mousedown', e=>{
+      if (launched) return;
+      const m=getMouse(e);
+      if (Math.hypot(m.x - probe.x, m.y - probe.y) <= probe.r + 16){
+        dragging=true; dragNow=m;
+      }
+    });
+    canvas.addEventListener('mousemove', e=>{ if (dragging) dragNow=getMouse(e); });
+    window.addEventListener('mouseup', ()=>{
+      if (!dragging) return; dragging=false; if (launched) return;
+      const dx=(dragNow.x - probe.x), dy=(dragNow.y - probe.y);
+      probe.vx = Math.max(-LAUNCH_MAXV, Math.min(LAUNCH_MAXV, dx*LAUNCH_SCALE));
+      probe.vy = Math.max(-LAUNCH_MAXV, Math.min(LAUNCH_MAXV, dy*LAUNCH_SCALE));
+      if (Math.hypot(probe.vx,probe.vy) < 0.25){ probe.vx=probe.vy=0; return; }
+      launched=true; statusEl.textContent='Push used: Yes';
+    });
+
+    function resetRun(){
+      launched=false; won=false;
+      probe.x=bounds.left+80; probe.y=canvas.height/2; probe.vx=probe.vy=0;
+      trail.length=0; statusEl.textContent='Push used: No';
+    }
+    resetBtn.addEventListener('click', ()=>{ resetRun(); draw(); });
+    finishBtn.addEventListener('click', ()=> location.href='level2.html');
+
+    // start
+    resetRun(); loop();
+  </script>
+</body>
+</html>

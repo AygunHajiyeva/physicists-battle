@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Physicists Battle</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Nunito:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background-image: url('assets/background.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-family: 'Nunito', sans-serif;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    .hero {
+      text-align: center;
+      animation: float 6s ease-in-out infinite;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 50px 70px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: clamp(60px, 10vw, 120px);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .logo .green {
+      color: #00ff85;
+      text-shadow: 0 0 20px #00ff85, 0 0 40px #00ff85, 0 0 80px #00ff85;
+      animation: glowGreen 3s ease-in-out infinite alternate;
+    }
+
+    .logo .yellow {
+      color: #ffcc33;
+      text-shadow: 0 0 20px #ffcc33, 0 0 40px #ffcc33, 0 0 80px #ffcc33;
+      animation: glowYellow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes glowGreen {
+      0% { text-shadow: 0 0 10px #00ff85, 0 0 20px #00ff85, 0 0 40px #00ff85; }
+      100% { text-shadow: 0 0 25px #00ff85, 0 0 50px #00ff85, 0 0 100px #00ff85; }
+    }
+
+    @keyframes glowYellow {
+      0% { text-shadow: 0 0 10px #ffcc33, 0 0 20px #ffcc33, 0 0 40px #ffcc33; }
+      100% { text-shadow: 0 0 25px #ffcc33, 0 0 50px #ffcc33, 0 0 100px #ffcc33; }
+    }
+
+    .boom {
+      font-size: 0.6em;
+      color: #ff6600;
+      margin-left: 0.2em;
+      text-shadow: 0 0 15px #ff6600, 0 0 35px #ff6600;
+    }
+
+    p.hook {
+      font-weight: 700;
+      font-size: clamp(18px, 2.2vw, 28px);
+      color: #bcd6ff;
+      margin: 25px 0 30px;
+      text-shadow: 0 0 10px rgba(0,255,255,0.5);
+    }
+
+    p.hook span { color: #1c9fff; }
+
+    .btn {
+      background: linear-gradient(90deg, #00ff85, #00e0ff);
+      color: #000;
+      border: none;
+      padding: 16px 40px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 0 0 25px rgba(0,255,180,0.7);
+      transition: all 0.25s ease;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px rgba(0,255,200,1);
+    }
+
+    small {
+      display: block;
+      margin-top: 12px;
+      color: #8aa0c9;
+      text-shadow: 0 0 10px rgba(0,255,255,0.4);
+      text-align: center;
+      font-size: 0.9em;
+    }
+
+    /* ===========================
+       AI Tutor (chat widget)
+       =========================== */
+    #ai-launcher{
+      position: fixed; right: 18px; bottom: 18px; z-index: 9999;
+      border: none; border-radius: 999px; padding: 12px 16px;
+      background: linear-gradient(90deg,#00ff85,#00e0ff);
+      color:#000; font-weight:800; box-shadow:0 10px 25px rgba(0,0,0,.35);
+      cursor: pointer; letter-spacing:.5px;
+    }
+    #ai-panel{
+      position: fixed; right: 18px; bottom: 72px; z-index: 9999;
+      width: min(360px, 94vw); max-height: 70vh;
+      background: rgba(0,0,0,.92); border:1px solid rgba(255,255,255,.15);
+      border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,.5);
+      display: grid; grid-template-rows: auto 1fr auto; overflow: hidden;
+      backdrop-filter: blur(6px);
+    }
+    .ai-header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.12);
+      font-family:'Orbitron',sans-serif; letter-spacing:.8px;
+    }
+    #ai-close{
+      border:none; background:transparent; color:#cfe4ff; cursor:pointer; font-size:16px;
+    }
+    #ai-messages{
+      padding:12px; overflow:auto; display:flex; flex-direction:column; gap:8px;
+    }
+    .ai-msg{ padding:10px 12px; border-radius:12px; line-height:1.4; font-size:14px; }
+    .ai-user{ align-self:flex-end; background:rgba(0,224,255,.12); border:1px solid rgba(0,224,255,.25); }
+    .ai-bot{  align-self:flex-start; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); }
+    #ai-form{ display:flex; gap:8px; padding:10px; border-top:1px solid rgba(255,255,255,.12); }
+    #ai-input{
+      flex:1; border-radius:10px; border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.05); color:#fff; padding:10px 12px;
+    }
+    #ai-form button{
+      border:none; border-radius:10px; padding:10px 14px; cursor:pointer;
+      background:linear-gradient(90deg,#00ff85,#00e0ff); color:#000; font-weight:800;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="hero">
+    <h1 class="logo">
+      <span class="green">PHYSICISTS</span><br>
+      <span class="yellow">BATTLE <span class="boom">✷</span></span>
+    </h1>
+
+    <p class="hook">The free, fun, and effective way to learn <span>Physics!</span></p>
+
+    <button class="btn" onclick="window.location.href='game.html'">Get Started</button>
+
+    <small>No sign-up needed • Play in your browser</small>
+  </div>
+
+  <!-- AI Tutor -->
+  <button id="ai-launcher" aria-label="Open AI Tutor">💬 Help</button>
+
+  <div id="ai-panel" hidden>
+    <div class="ai-header">
+      <strong>AI Tutor</strong>
+      <button id="ai-close" aria-label="Close">✕</button>
+    </div>
+    <div id="ai-messages" aria-live="polite"></div>
+    <form id="ai-form">
+      <input id="ai-input" type="text" placeholder="Ask about the game, Newton’s laws, or how to start..." required />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <!-- AI Tutor client script -->
+  <script>
+  (() => {
+    const launcher = document.getElementById('ai-launcher');
+    const panel    = document.getElementById('ai-panel');
+    const closeBtn = document.getElementById('ai-close');
+    const form     = document.getElementById('ai-form');
+    const input    = document.getElementById('ai-input');
+    const box      = document.getElementById('ai-messages');
+
+    const STORAGE_KEY = 'aiTutorHistory_index'; // separate key per page if you want
+    let history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); }
+    function scrollDown(){ box.scrollTop = box.scrollHeight; }
+
+    function render(){
+      box.innerHTML = '';
+      history.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'ai-msg ' + (m.role === 'user' ? 'ai-user' : 'ai-bot');
+        div.textContent = m.content;
+        box.appendChild(div);
+      });
+      scrollDown();
+    }
+
+    async function sendToAI(text){
+      const systemMsg = "You are an in-game Physics Tutor for 'Physicists Battle'. Be concise (≤120 words unless asked), friendly, and explain with tiny steps + small formulas. User is on the Home page.";
+      const contextHint = "(Context) We are on the home page. The player might ask about how to start, what the game teaches, or Newton’s laws.";
+
+      try{
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({
+            system: systemMsg,
+            messages: [
+              ...history,
+              { role:'user', content: contextHint },
+              { role:'user', content: text }
+            ]
+          })
+        });
+        const data = await res.json();
+
+        history.push({ role:'user', content: text });
+        history.push({ role:'assistant', content: data.reply || '(no reply)' });
+        save(); render();
+      }catch(err){
+        history.push({ role:'assistant', content: '(Error contacting AI: ' + err.message + ')' });
+        save(); render();
+      }
+    }
+
+    launcher.onclick = () => { panel.hidden = false; render(); input.focus(); };
+    closeBtn.onclick = () => { panel.hidden = true; };
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      sendToAI(text);
+    };
+
+    if (history.length === 0){
+      history = [{ role:'assistant', content:'Hi! Need help getting started or understanding the physics? Ask me anything.' }];
+      save();
+    }
+    render();
+  })();
+  </script>
+</body>
+</html>

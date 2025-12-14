@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Physicists Battle — Newton Level 2 (Second Law)</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Nunito:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{ --neon-green:#00ff85; --neon-cyan:#00e0ff; --panel-bg: rgba(0,0,0,0.9); }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; min-height:100vh;
+      background: radial-gradient(circle at center, #060b1a 0%, #010409 100%);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Nunito', sans-serif; color:#fff; overflow:hidden;
+    }
+    .wrap{
+      width:min(1100px,94vw); background:var(--panel-bg);
+      border-radius:20px; box-shadow:0 0 30px rgba(0,0,0,.6);
+      padding:24px 24px 28px; animation:float 6s ease-in-out infinite;
+    }
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    header{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:14px;}
+    .title{font-family:'Orbitron', sans-serif; text-transform:uppercase; letter-spacing:2px; font-size:clamp(20px,3.2vw,34px);}
+    .title span{color:var(--neon-green); text-shadow:0 0 16px var(--neon-green);}
+    .btn{
+      background:linear-gradient(90deg,var(--neon-green),var(--neon-cyan));
+      color:#000; border:none; padding:12px 22px; border-radius:12px;
+      font-weight:800; font-size:16px; letter-spacing:1px; cursor:pointer;
+      text-transform:uppercase; box-shadow:0 0 25px rgba(0,255,180,.5);
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .btn:hover{ transform:scale(1.04); box-shadow:0 0 40px rgba(0,255,200,.9); }
+    .btn.secondary{ background:transparent; color:#cfe4ff; border:1px solid rgba(255,255,255,.2); box-shadow:none; text-transform:none; }
+
+    .panel{ background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:16px; margin-bottom:12px; }
+    .panel h3{ margin:0 0 10px; font-family:'Orbitron', sans-serif; letter-spacing:1px; }
+    .explain{ color:#cfe4ff; line-height:1.6; }
+    .explain ul{ margin:10px 0 0 18px; }
+
+    .formula-block{ display:flex; align-items:center; justify-content:center; margin:14px 0 8px; }
+    .formula{
+      font-family:'Orbitron', sans-serif; color:var(--neon-cyan);
+      text-shadow:0 0 12px var(--neon-cyan), 0 0 22px rgba(0,224,255,.45);
+      font-size:clamp(20px,3.2vw,32px); letter-spacing:1px; padding:8px 14px; border-radius:12px;
+      background:rgba(0,224,255,0.06); border:1px solid rgba(0,224,255,0.25);
+    }
+    .hint{ color:#9fc8ff; text-shadow:0 0 8px rgba(0,255,255,.25); margin-top:8px; }
+    .row{ display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+
+    .controls{
+      display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+      border-radius:12px; padding:12px;
+    }
+    .control{ display:flex; align-items:center; gap:10px; }
+    .control label{ color:#cfe4ff; font-weight:700; }
+    .control input[type="range"]{ width:180px; }
+    .badge{ padding:6px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.04); }
+    .badge strong{ color:#fff; }
+
+    canvas{ width:100%; height:340px; background:#0b0f1a; border-radius:12px; display:block; }
+    footer{ margin-top:10px; color:#8aa0c9; font-size:12px; text-align:right; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">Newton — <span>Second Law</span> (F = m·a)</div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn secondary" id="backBtn">← Back</button>
+        <button class="btn" id="nextBtn">Skip to Third Law</button>
+      </div>
+    </header>
+
+    <!-- LEARN -->
+    <section class="panel" id="panelLearn" style="display:block;">
+      <h3>Second Law — Proportionality of Force, Mass, and Acceleration</h3>
+      <div class="explain">
+        Newton’s <strong>Second Law</strong> connects force, mass, and acceleration:
+        <ul>
+          <li>For the same mass, <strong>more force ⇒ more acceleration</strong>.</li>
+          <li>For the same force, <strong>more mass ⇒ less acceleration</strong>.</li>
+          <li>Direction of <strong>a</strong> is the same as the net force <strong>ΣF</strong>.</li>
+        </ul>
+      </div>
+      <div class="formula-block"><div class="formula">ΣF = m·a  &nbsp;&nbsp;⇔&nbsp;&nbsp; a = ΣF / m</div></div>
+      <p class="hint">Set <strong>Force</strong> and <strong>Mass</strong>, press <em>Apply Force</em>. Reach the green zone before time runs out.</p>
+      <div class="row" style="margin-top:10px;"><div></div><button class="btn" id="toPlayBtn">Got it — Let’s Play</button></div>
+    </section>
+
+    <!-- PLAY -->
+    <section class="panel" id="panelPlay" style="display:none;">
+      <div class="controls">
+        <div class="control">
+          <label>Force ΣF:</label>
+          <!-- faster: extend range -->
+          <input id="forceRange" type="range" min="-40" max="40" step="1" value="16"/>
+          <span class="badge">ΣF = <strong id="forceVal">16</strong> N</span>
+        </div>
+        <div class="control">
+          <label>Mass m:</label>
+          <input id="massRange" type="range" min="1" max="10" step="1" value="4"/>
+          <span class="badge">m = <strong id="massVal">4</strong> kg</span>
+        </div>
+        <div class="badge">a = <strong id="accVal">4.00</strong> m/s²</div>
+        <button class="btn" id="applyBtn">Apply Force</button>
+        <button class="btn secondary" id="resetBtn">Reset</button>
+      </div>
+
+      <div class="row" style="margin:8px 0;">
+        <div class="hint">Goal: Reach the <strong>green zone</strong> within <strong id="timer">10.0</strong> s. You can apply force multiple times to change velocity.</div>
+        <div class="badge">v = <strong id="velVal">0.00</strong> m/s • x = <strong id="posVal">0.0</strong> m</div>
+      </div>
+
+      <canvas id="world" width="980" height="340"></canvas>
+
+      <div class="row" style="margin-top:8px;">
+        <button class="btn secondary" id="prevBtn">← Back to First Law</button>
+        <button class="btn" id="finishBtn" disabled>Finish Second Law</button>
+      </div>
+    </section>
+
+    <!-- COMPLETE -->
+    <section class="panel" id="panelComplete" style="display:none;">
+      <h3>Nice! Second Law Completed ✅</h3>
+      <p>You tuned <strong>ΣF</strong> and <strong>m</strong>, saw <strong>a = ΣF/m</strong>, and reached the goal in time.</p>
+      <div class="row">
+        <button class="btn secondary" id="replayBtn">Replay</button>
+        <button class="btn" id="thirdBtn">Next: Third Law</button>
+      </div>
+    </section>
+
+    <footer>Progress is saved locally on your device.</footer>
+  </div>
+
+  <script>
+    // Panels/Nav
+    const panelLearn=document.getElementById('panelLearn');
+    const panelPlay=document.getElementById('panelPlay');
+    const panelComplete=document.getElementById('panelComplete');
+    const show=w=>{
+      panelLearn.style.display=(w==='learn')?'block':'none';
+      panelPlay.style.display =(w==='play')?'block':'none';
+      panelComplete.style.display=(w==='complete')?'block':'none';
+    };
+    document.getElementById('backBtn').onclick = ()=> location.href='game.html';
+    document.getElementById('nextBtn').onclick = ()=> location.href='level3.html';
+    document.getElementById('prevBtn').onclick = ()=> location.href='level1.html';
+    document.getElementById('toPlayBtn').onclick= ()=> { show('play'); resetSim(true); };
+    document.getElementById('replayBtn')?.addEventListener('click', ()=> { show('play'); resetSim(true); });
+    document.getElementById('thirdBtn')?.addEventListener('click', ()=> location.href='level3.html');
+    show('learn');
+
+    // DOM
+    const forceRange=document.getElementById('forceRange');
+    const massRange =document.getElementById('massRange');
+    const forceVal  =document.getElementById('forceVal');
+    const massVal   =document.getElementById('massVal');
+    const accVal    =document.getElementById('accVal');
+    const velVal    =document.getElementById('velVal');
+    const posVal    =document.getElementById('posVal');
+    const timerEl   =document.getElementById('timer');
+    const applyBtn  =document.getElementById('applyBtn');
+    const resetBtn  =document.getElementById('resetBtn');
+    const finishBtn =document.getElementById('finishBtn');
+
+    // Canvas
+    const canvas=document.getElementById('world');
+    const ctx=canvas.getContext('2d');
+
+    const bounds={left:40,right:canvas.width-40,top:40,bottom:canvas.height-40};
+    const trackY=canvas.height*0.65;
+    const target={x:canvas.width-180,y:trackY-30,w:120,h:60};
+
+    // Cart physics state
+    const cart={ x:bounds.left+60, v:0, m:4, F:16, a:0 };
+
+    // Faster mapping
+    const metersPerPixel = 1/25;     // 25px ≈ 1m (visual)
+    const dtSecBase = 1/60;
+    const SPEED_BOOST = 2.2;         // ← makes acceleration convert to pixels faster
+    const IMPULSE_SECONDS = 0.7;     // slightly longer impulse window
+
+    // Timer
+    let timeLeft = 10.0, lastTs = 0, running=false, won=false;
+    let applyingForces = 0;
+
+    function recalc(){
+      cart.m = parseInt(massRange.value,10);
+      cart.F = parseInt(forceRange.value,10);
+      forceVal.textContent = cart.F.toString();
+      massVal.textContent  = cart.m.toString();
+      const a = cart.F / cart.m;
+      accVal.textContent = a.toFixed(2);
+    }
+    forceRange.addEventListener('input', recalc);
+    massRange.addEventListener('input', recalc);
+    recalc();
+
+    function drawBG(){
+      ctx.fillStyle='#0b0f1a'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.strokeStyle='rgba(0,224,255,.25)'; ctx.lineWidth=2;
+      ctx.strokeRect(bounds.left,bounds.top,bounds.right-bounds.left,bounds.bottom-bounds.top);
+      ctx.strokeStyle='rgba(180,200,255,.25)';
+      ctx.beginPath(); ctx.moveTo(bounds.left,trackY); ctx.lineTo(bounds.right,trackY); ctx.stroke();
+      ctx.fillStyle='rgba(0,255,133,.18)'; ctx.fillRect(target.x,target.y,target.w,target.h);
+      ctx.strokeStyle='#00ff85'; ctx.lineWidth=2; ctx.strokeRect(target.x,target.y,target.w,target.h);
+      ctx.font='12px Nunito'; ctx.fillStyle='#9fffcf'; ctx.fillText('GOAL', target.x+42, target.y-6);
+    }
+
+    function drawArrow(x1,y1,x2,y2,color='#ffc960'){
+      const dx=x2-x1, dy=y2-y1, ang=Math.atan2(dy,dx), len=Math.hypot(dx,dy);
+      const head=Math.min(18, Math.max(10, len*0.12));
+      ctx.strokeStyle=color; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x2,y2);
+      ctx.lineTo(x2-head*Math.cos(ang-Math.PI/7), y2-head*Math.sin(ang-Math.PI/7));
+      ctx.lineTo(x2-head*Math.cos(ang+Math.PI/7), y2-head*Math.sin(ang+Math.PI/7));
+      ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+    }
+
+    function drawCart(){
+      const w=60,h=26;
+      ctx.fillStyle='#ffffff'; ctx.fillRect(cart.x-w/2,trackY-h,w,h);
+      ctx.strokeStyle='#00e0ff'; ctx.lineWidth=2; ctx.strokeRect(cart.x-w/2,trackY-h,w,h);
+      ctx.fillStyle='#a6c9ff';
+      ctx.beginPath(); ctx.arc(cart.x-18,trackY,8,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cart.x+18,trackY,8,0,Math.PI*2); ctx.fill();
+      if (Math.abs(cart.v)>0.01){
+        drawArrow(cart.x, trackY - h - 10, cart.x + cart.v*15, trackY - h - 10, '#1ee3a2');
+      }
+    }
+
+    function applyForce(){
+      const a = cart.F / cart.m; // m/s^2
+      cart.a = a;
+      applyingForces = Math.round(IMPULSE_SECONDS / dtSecBase);
+      running = true;
+    }
+    applyBtn.addEventListener('click', ()=>{ recalc(); applyForce(); });
+    resetBtn.addEventListener('click', ()=> resetSim(true));
+
+    function resetSim(full=false){
+      cart.x = bounds.left + 60; cart.v = 0; cart.a = 0;
+      applyingForces = 0; timeLeft = 10.0; running=false; won=false;
+      finishBtn.disabled = true;
+      velVal.textContent = '0.00'; posVal.textContent = '0.0'; timerEl.textContent = timeLeft.toFixed(1);
+      drawOnce();
+    }
+
+    function update(dt){
+      if (!running) return;
+
+      timeLeft = Math.max(0, timeLeft - dt);
+      timerEl.textContent = timeLeft.toFixed(1);
+
+      if (applyingForces > 0){
+        // dv (m/s) = a * dt; map to pixels with boost
+        const dv_m_s = cart.a * dt;
+        const dv_px  = (dv_m_s / metersPerPixel) * dt * SPEED_BOOST;
+        cart.v += dv_px;
+        applyingForces--;
+      }
+
+      // integrate velocity
+      cart.x += cart.v;
+
+      // clamp
+      if (cart.x < bounds.left + 60){ cart.x = bounds.left + 60; cart.v = 0; }
+      if (cart.x > bounds.right - 60){ cart.x = bounds.right - 60; cart.v = 0; }
+
+      // HUD (rough conversions)
+      velVal.textContent = (cart.v * metersPerPixel / dt).toFixed(2);
+      posVal.textContent = ((cart.x - (bounds.left + 60))*metersPerPixel).toFixed(1);
+
+      // win
+      if (!won && cart.x > target.x && cart.x < target.x + target.w){
+        won=true; running=false; finishBtn.disabled=false;
+        show('complete');
+      }
+      if (!won && timeLeft<=0){ running=false; /* optional fail state */ }
+    }
+
+    function drawOnce(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawBG();
+      if (!won && !running && Math.abs(cart.F) !== 0){
+        const dir = Math.sign(cart.F);
+        const scale = Math.min(1, Math.abs(cart.F)/40);
+        drawArrow(cart.x, trackY - 46, cart.x + dir*100*scale, trackY - 46, '#ffc960');
+      }
+      drawCart();
+    }
+
+    function loop(ts){
+      if (!lastTs) lastTs = ts;
+      const dt = Math.min(0.05, (ts - lastTs)/1000);
+      lastTs = ts;
+      update(dt);
+      drawOnce();
+      requestAnimationFrame(loop);
+    }
+
+    finishBtn.addEventListener('click', ()=> show('complete'));
+
+    // start
+    resetSim();
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
