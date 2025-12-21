@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Physicists Battle — Victory</title>
+
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Background image */
+    .bg {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;      /* 👈 KEY: no zoom, no crop */
+      background: #000;
+      z-index: 1;
+    }
+
+    /* Bottom overlay for button */
+    .overlay {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 32px 16px 40px;
+      display: flex;
+      justify-content: center;
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.75),
+        rgba(0, 0, 0, 0)
+      );
+      z-index: 2;
+    }
+
+    /* Continue button */
+    .btn {
+      background: linear-gradient(90deg, #00ff85, #00e0ff);
+      color: #000;
+      border: none;
+      padding: 16px 46px;
+      border-radius: 14px;
+      font-weight: 900;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(0, 255, 200, 0.9);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.06);
+      box-shadow: 0 0 45px rgba(0, 255, 220, 1);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- FULL SCREEN IMAGE -->
+  <img
+    src="assets/newtonnn.png"
+    alt="Newton Victory Scene"
+    class="bg"
+  />
+
+  <!-- BUTTON -->
+  <div class="overlay">
+    <button class="btn" onclick="location.href='final.html'">
+      Continue
+    </button>
+  </div>
+
+</body>
+</html>

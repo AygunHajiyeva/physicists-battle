@@ -129,10 +129,9 @@
       </div>
     </section>
 
-    <!-- COMPLETE -->
+    <!-- COMPLETE (kept but not used now; redirect happens instead) -->
     <section class="panel" id="panelComplete" style="display:none;">
       <h3>Great! Third Law Completed ✅</h3>
-      
       <div class="row">
         <button class="btn secondary" id="replayBtn">Replay</button>
         <button class="btn" id="homeBtn2">Back to Home</button>
@@ -147,17 +146,20 @@
     const panelLearn = document.getElementById('panelLearn');
     const panelPlay  = document.getElementById('panelPlay');
     const panelComplete = document.getElementById('panelComplete');
+
     const show = w=>{
       panelLearn.style.display = (w==='learn')?'block':'none';
       panelPlay.style.display  = (w==='play') ?'block':'none';
       panelComplete.style.display = (w==='complete')?'block':'none';
     };
+
     document.getElementById('backBtn').onclick = ()=> location.href='level2.html';
     document.getElementById('homeBtn').onclick = ()=> location.href='index.html';
     document.getElementById('homeBtn2').onclick = ()=> location.href='index.html';
     document.getElementById('prevBtn').onclick = ()=> location.href='level2.html';
     document.getElementById('toPlayBtn').onclick = ()=> { show('play'); resetSim(true); };
     document.getElementById('replayBtn').onclick = ()=> { show('play'); resetSim(true); };
+
     show('learn');
 
     // DOM refs
@@ -324,8 +326,15 @@
       if (!doneL && L.x - L.r <= goalL.x + goalL.w) doneL = true;
       if (!doneR && R.x + R.r >= goalR.x)        doneR = true;
 
+      // ✅ WIN → redirect to visual.html
       if (doneL && doneR){
-        running=false; finishBtn.disabled=false; show('complete');
+        running = false;
+
+        // save progress (optional)
+        localStorage.setItem('newton_laws_done', 'true');
+        localStorage.setItem('level3_done', 'true');
+
+        location.href = 'visual.html';
       }
     }
 
@@ -349,6 +358,7 @@
       // give equal & opposite impulse (toss)
       applying = Math.round(IMPULSE_SECONDS / dt);
       running = true;
+
       // show predicted velocities now
       const J = Fmag * IMPULSE_SECONDS;
       v1Val.textContent = ( J / L.m).toFixed(2);
@@ -356,7 +366,13 @@
     });
 
     resetBtn.addEventListener('click', ()=> resetSim(true));
-    finishBtn.addEventListener('click', ()=> show('complete'));
+
+    // ✅ if user clicks Finish button manually, go to visual.html
+    finishBtn.addEventListener('click', ()=>{
+      localStorage.setItem('newton_laws_done', 'true');
+      localStorage.setItem('level3_done', 'true');
+      location.href = 'visual.html';
+    });
 
     // start
     resetSim();
